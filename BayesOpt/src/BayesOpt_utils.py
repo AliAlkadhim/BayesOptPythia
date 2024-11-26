@@ -1,3 +1,6 @@
+from datetime import datetime
+import os
+
 import numpy as np
 import pandas as pd
 from scipy.stats import qmc
@@ -107,8 +110,34 @@ def print_parameters(model):
     for param_name, param_tensor in state_dict.items():
         print(param_name, param_tensor)
 
+def configs_df():
+    configs_dict = {
+        'N_BO_ITERATIONS': N_BO_ITERATIONS,
+        'N_PARAMS': num_params,
+        'N_OPTIMIZE_ACQ_ITER': N_OPTIMIZE_ACQ_ITER,
+        'N_RESTARTS': N_RESTARTS,
+        'KERNEL': KERNEL,
+        'OPTIMIZE_ACQ_METHOD': OPTIMIZE_ACQ_METHOD,
+    }
+    df = pd.DataFrame([configs_dict])
+    return df
+
+def model_history_df(model):
+    param_names = list(PARAM_DICT.keys())
+    column_names = param_names + ['chi2']
+    train_x = model.train_inputs[0].numpy()
+    print(f'MODEL train_x.shape={train_x.shape}')
+    train_y = model.train_targets.numpy().reshape(-1,1)
+    print(f'MODEL train_y.shape={train_y.shape}')
+    data = np.hstack([train_x, train_y])
+    df = pd.DataFrame(data, columns=column_names)
+    return df
 
 
+def directory_name():
+    time = datetime.now().strftime("%Y%m%d_%H%M%S")
+    dir_name = f'Tune_{time}'
+    return dir_name
 
 def train_model(model, train_x, train_y, n_epochs, print_=False):
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-2)
@@ -159,7 +188,8 @@ def BayesOpt_all_params(true_objective_func,
                         n_optimize_acq_iter=10,
                         n_restarts=25,
                         minimize_method='SLSQP',
-                        jac=None):
+                        jac=None,
+                        save_output=True):
     # Use the Adam optimizer
 
     model.eval()
@@ -246,7 +276,7 @@ def BayesOpt_all_params(true_objective_func,
             train_x = torch.cat([train_x, next_x.unsqueeze(0)])
         next_y = torch.tensor([next_y])
 
-        print(f'iteration {iteration} next_x = {next_x}, next_y = {next_y}')
+        print(f'iteration {iteration}, next_x = {next_x}, next_y = {next_y}')
         train_y = torch.cat([train_y, next_y])
 
         model.set_train_data(inputs=train_x, targets=train_y, strict=False)
@@ -258,9 +288,30 @@ def BayesOpt_all_params(true_objective_func,
             train_model(model, train_x, train_y, 5, print_=print_)
 
     train_size=train_x.shape[0]
+    # we want to always save the model for every run because it has the whole history and data
+
     if save_model:
+        if not os.path.exists('models'):
+            os.makedirs('models')
         path = f'models/GPytorch_all_params_model_Niter_{n_iterations}_trainsize_{train_size}_acq_{acquisition}.pth'
         torch.save(model.state_dict(), path)
+
+    if save_output:
+        configs = configs_df()
+        
+        history_df = model_history_df(model)
+
+        if not os.path.exists('output'):
+            os.makedirs('output')
+        dir_name = directory_name()
+        if not os.path.exists(f'output/{dir_name}'):
+            os.makedirs(f'output/{dir_name}')
+
+        df_path = f'output/{dir_name}/history.csv'
+        history_df.to_csv(df_path, index=False)
+
+        configs_df_path = f'output/{dir_name}/configs.csv'
+        configs.to_csv(configs_df_path, index=False)
 
     return iterations, true_objecctive_funcs
 
