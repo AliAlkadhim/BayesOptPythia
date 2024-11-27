@@ -107,3 +107,101 @@ def toy_objective_func_three_min(aLund,
     y3 = quadratic_form(point, POINT3)
     result = np.sqrt(y1 * (y2+1.0) * (y3+2.0))#/400
     return result# + np.random.normal(0,1)#random noise
+
+
+
+def pythia_objective_func(aLund, 
+                     bLund,
+                    rFactC,
+                    rFactB,
+                    aExtraSQuark,
+                    aExtraDiquark,
+                    sigma,
+                    enhancedFraction,
+                    enhancedWidth,
+                    # ProbStoUD,
+                    # probQQtoQ,
+                    # probSQtoQQ,
+                    # ProbQQ1toQQ0,
+                    alphaSvalue,
+                    pTmin
+                    ):
+    
+    # step 1: write .cmnd file 
+    make_pythia_card(aLund, 
+                     bLund,
+                    rFactC,
+                    rFactB,
+                    aExtraSQuark,
+                    aExtraDiquark,
+                    sigma,
+                    # enhancedFraction,
+                    # enhancedWidth,
+                    # ProbStoUD,
+                    # probQQtoQ,
+                    # probSQtoQQ,
+                    # ProbQQ1toQQ0,
+                    # alphaSvalue,
+                    # pTmin
+                    )
+    #step 2 run main42 and rivet
+    main42_path = os.path.join(BAYESOPT_BASE, 'BayesOp', 'src', 'main42')
+    BO_card_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'BO_Cards', 'ALEPH_1996_S3486095_BO_card.cmnd')
+    temp_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'temp')
+    ALEPH_YODAS_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', 'ALEPH_YODAS_BayesOpt')
+
+    os.system(f"""./{main42_path} {BO_card_path} {temp_path}/ALEPH_1996_S3486095_card.fifo
+    rivet -o ALEPH_1996_S3486095_hist_0.yoda -a ALEPH_1996_S3486095 {temp_path}/ALEPH_1996_S3486095_card.fifo
+
+    rm {temp_path}/ALEPH_1996_S3486095_card.fifo
+    mv ALEPH_1996_S3486095_hist_0.yoda {ALEPH_YODAS_path}""")
+    
+
+    #step 3: get generated yoda file histograms in the form of dataframes
+    dfdata, dfsims, generated_indices = get_data()
+    print('DATA DATAFRAME')
+    print(dfdata['/REF/ALEPH_1996_S3486095/d01-x01-y01'].head())
+    print('FIRST SIM DATAFRAME')
+    print(dfsims[generated_indices[0]]['/ALEPH_1996_S3486095/d01-x01-y01'].head())
+
+    #step 4: fileter histograms based on our criteria
+    data_keys, mc_keys = get_hist_names(dfdata)
+
+    filtered_data_keys, filtered_mc_keys = filter_keys(dfdata, dfsims, data_keys, mc_keys)
+
+    #step 4.5: take out bad histograms
+    reduced_data_keys, reduced_mc_keys = reduce_filtered_keys(filtered_data_keys, filtered_mc_keys)
+    print('reduced_data_keys, reduced_mc_keys', reduced_data_keys, reduced_mc_keys)
+    reduced_data_keys, reduced_mc_keys = reduced_data_keys[:7], reduced_mc_keys[:7]
+    
+    #step 5: get test statistic at each point
+    X0 = {}
+    for ii, gen_ind in enumerate(generated_indices):
+        # X0.append(test_statistic(filtered_data_keys,filtered_mc_keys, dfdata, dfsims[gen_ind], which = 0))
+        # try:
+        #     X0.append(test_statistic(filtered_data_keys,filtered_mc_keys, dfdata, dfsims[ii], which = 0))
+        try:
+            X0[gen_ind] = test_statistic(reduced_data_keys,
+                                         reduced_mc_keys, 
+                                         dfdata, 
+                                         dfsims[gen_ind], 
+                                         which = 0)
+        except Exception:
+            print('test statistic error in file index: ', gen_ind)
+            
+            
+    objective_func = X0[0]
+        
+    os.system(f"rm {ALEPH_YODAS_path}/ALEPH_1996_S3486095_hist_0.yoda")
+        
+    print(f"objective function = {objective_func}")
+    return objective_func
+
+if __name__ == '__main__':
+    pythia_objective_func(aLund=0.1, 
+                     bLund=0.1,
+                    rFactC=0.1,
+                    rFactB=0.1,
+                    aExtraSQuark=0.3,
+                    aExtraDiquark=0.4,
+                    sigma=0.5)

@@ -41,7 +41,7 @@ def main():
     param_names = list(PARAM_DICT.keys())
     num_params =len(PARAM_DICT)
     print(f'num_params={num_params}')
-    num_train_points = 1#num_params *6
+    num_train_points = num_params *6
     train_df_new = make_train_dataset(PARAM_DICT=PARAM_DICT, points=num_train_points, true_objective_func=object_func)
     print(train_df_new.head())
 
@@ -81,13 +81,15 @@ def main():
                     acquisition = 'EI',
                     retrain_gp=False,
                     print_=False,
-                   save_model=False,
+                   save_model=True,
                     OPTIMIZE_ACQ=True,
                     suggest_monash_point=False,
                     n_optimize_acq_iter=N_OPTIMIZE_ACQ_ITER,
                     n_restarts=N_RESTARTS,
-                    minimize_method='Nelder-Mead',
-                    jac=None)
+                    minimize_method='SLSQP',
+                    jac=None,
+                    save_output=True,
+                        kappa=KAPPA)
     
     
     best_parameters, best_f = get_observed_best_parameters(model)

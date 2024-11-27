@@ -1,0 +1,1 @@
+export BAYESOPT_BASE=$(pwd)

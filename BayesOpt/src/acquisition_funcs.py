@@ -51,7 +51,7 @@ def expected_improvement(model, observed_y, candidate_set):
         
         ei = sigma * (z * normal.cdf(z) + normal.log_prob(z).exp())
 
-        # Set EI to 0 where sigma is 0 (to avoid NaN)
+        # Set EI to 0 where sigma is 0 
         ei = torch.where(sigma > 0, ei, torch.zeros_like(ei))
     # print('candidate set', candidate_set)
     # print('ei output', ei)
@@ -66,9 +66,10 @@ def expected_improvement_numpy(model, observed_y, candidate_set):
 
         mean = observed_pred.mean
         sigma = observed_pred.variance.sqrt()
+        
+        xi=0.01
 
-        # Compute z (not gamma)
-        z = (best_f - mean) / sigma
+        z = ((best_f-xi) - mean) / sigma
 
         # Compute EI
         normal = torch.distributions.Normal(0, 1)

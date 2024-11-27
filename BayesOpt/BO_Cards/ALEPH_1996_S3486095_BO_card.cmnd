@@ -1,0 +1,31 @@
+Main:numberOfEvents = 3000          ! number of events to generate
+Next:numberShowEvent = 0           ! suppress full listing of first events
+# random seed
+Random:setSeed = on
+Random:seed= 0
+! 2) Beam parameter settings.
+Beams:idA = 11                ! first beam,  e- = 11
+Beams:idB = -11                ! second beam, e+ = -11
+Beams:eCM = 91.2               ! CM energy of collision
+# Pythia 8 settings for LEP
+# Hadronic decays including b quarks, with ISR photons switched off
+WeakSingleBoson:ffbar2gmZ = on
+23:onMode = off
+23:onIfAny = 1 2 3 4 5
+PDF:lepton = off
+SpaceShower:QEDshowerByL = off
+
+StringZ:aLund = 0.1
+
+StringZ:bLund = 0.1
+
+StringZ:rFactC = 0.1
+
+StringZ:rFactB = 0.1
+
+StringZ:aExtraSQuark = 0.3
+
+StringZ:aExtraDiquark = 0.4
+
+StringPT:sigma = 0.5
+
