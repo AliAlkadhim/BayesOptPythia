@@ -117,14 +117,14 @@ def pythia_objective_func(aLund,
                     aExtraSQuark,
                     aExtraDiquark,
                     sigma,
-                    enhancedFraction,
-                    enhancedWidth,
+                    # enhancedFraction,
+                    # enhancedWidth,
                     # ProbStoUD,
                     # probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    alphaSvalue,
-                    pTmin
+                    # alphaSvalue,
+                    # pTmin
                     ):
     
     # step 1: write .cmnd file 
@@ -145,12 +145,12 @@ def pythia_objective_func(aLund,
                     # pTmin
                     )
     #step 2 run main42 and rivet
-    main42_path = os.path.join(BAYESOPT_BASE, 'BayesOp', 'src', 'main42')
+    main42_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'src', 'main42')
     BO_card_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'BO_Cards', 'ALEPH_1996_S3486095_BO_card.cmnd')
     temp_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'temp')
     ALEPH_YODAS_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', 'ALEPH_YODAS_BayesOpt')
 
-    os.system(f"""./{main42_path} {BO_card_path} {temp_path}/ALEPH_1996_S3486095_card.fifo
+    os.system(f"""{main42_path} {BO_card_path} {temp_path}/ALEPH_1996_S3486095_card.fifo
     rivet -o ALEPH_1996_S3486095_hist_0.yoda -a ALEPH_1996_S3486095 {temp_path}/ALEPH_1996_S3486095_card.fifo
 
     rm {temp_path}/ALEPH_1996_S3486095_card.fifo
