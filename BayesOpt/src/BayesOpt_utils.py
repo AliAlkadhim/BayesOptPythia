@@ -34,7 +34,6 @@ from tqdm import tqdm
 from configs import *
 from models import *
 from acquisition_funcs import *
-from objective_funcs import *
 from optimize_acquisition import *
 from shared_utils import *
 from pythia_SBI_utils import *
@@ -107,7 +106,10 @@ def make_train_dataset(PARAM_DICT, points,true_objective_func, save_data=True):
 
     df = pd.DataFrame(rows, columns=column_names)
     if save_data:
-        df.to_csv(os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func.__name__}_train_data.csv'))
+        true_objective_func_name=true_objective_func.__name__
+        gp_train_df_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func_name}_gp_train_data.csv')
+        df.to_csv(gp_train_df_path)
+        print(f'saved gp train data to {gp_train_df_path}')
     return df
 
 def print_parameters(model):
@@ -124,8 +126,10 @@ def configs_df():
         'KERNEL': KERNEL,
         'OPTIMIZE_ACQ_METHOD': OPTIMIZE_ACQ_METHOD,
     }
+    config_string = '_'.join(f'{k}_{v}' for k, v in configs_dict.items())
+
     df = pd.DataFrame([configs_dict])
-    return df
+    return df, config_string
 
 def model_history_df(model):
     param_names = list(PARAM_DICT.keys())
@@ -139,12 +143,17 @@ def model_history_df(model):
     return df
 
 
-def directory_name():
-    time = datetime.now().strftime("%Y%m%d_%H%M%S")
-    dir_name = f'Tune_{time}'
+def directory_name(object_func):
+    use_datetime=False
+    if use_datetime:
+        time = datetime.now().strftime("%Y%m%d_%H%M%S")
+        dir_name = f'{object_func.__name__}_Tune_{time}'
+    else:
+        df, config_string = configs_df()
+        dir_name = f'{object_func.__name__}_{config_string}_Tune'
     return dir_name
 
-def train_model(model, train_x, train_y, n_epochs, print_=False):
+def train_model(model, train_x, train_y, n_epochs, print_=False, plot_loss=False):
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-2)
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(model.likelihood, model )
 
@@ -153,10 +162,12 @@ def train_model(model, train_x, train_y, n_epochs, print_=False):
 
     eps=2e-6
     loss_prev = torch.tensor([np.inf])
+    loss_vals=[]
     for epoch in range(n_epochs):
         optimizer.zero_grad()
         output = model(train_x)  # Use model() instead of model.predict()
         loss = -mll(output, train_y)
+        loss_vals.append(loss.detach().float())
 
         if print_:
             print(f'Epoch {epoch + 1}/{n_epochs} - Loss: {loss.item():.3f}   '
@@ -173,6 +184,14 @@ def train_model(model, train_x, train_y, n_epochs, print_=False):
 
     model.eval()
     # model.likelihood.eval()
+
+    if plot_loss:
+        epochs=np.arange(n_epochs)
+        plt.plot(epochs, loss_vals)
+        plt.xlabel('epoch')
+        plt.ylabel('loss=likelihood')
+        plt.show()
+        # plt.savefig(
     return model
 
 
@@ -220,6 +239,7 @@ def BayesOpt_all_params(true_objective_func,
     ######################################################################
     iterations=[]
     true_objecctive_funcs=[]
+    alpha_l=[]
     for iteration in range(n_iterations):
         iterations.append(iteration)
         if OPTIMIZE_ACQ:
@@ -283,7 +303,8 @@ def BayesOpt_all_params(true_objective_func,
             train_x = torch.cat([train_x, next_x.unsqueeze(0)])
         next_y = torch.tensor([next_y])
 
-        print(f'iteration {iteration}, next_x = {next_x}, next_y = {next_y}, acq = {acq}')
+        alpha_l.append(acq.float())
+        print(f'iteration {iteration}, \t next_x = {next_x}, \t next_y = {next_y}, \t acq = {acq}')
         train_y = torch.cat([train_y, next_y])
 
         model.set_train_data(inputs=train_x, targets=train_y, strict=False)
@@ -301,9 +322,11 @@ def BayesOpt_all_params(true_objective_func,
     # End BO loop
     train_size=train_x.shape[0]
     # we want to always save the model for every run because it has the whole history and data
+    #calculate output directory name even if not saving, because it depends on time!
+    dir_name = directory_name(true_objective_func)
 
     if save_model:
-        dir_name = directory_name()
+        
 
         dir_path = make_output_dirname(dir_name)
         path = os.path.join(dir_path, 'model.pth')
@@ -311,11 +334,19 @@ def BayesOpt_all_params(true_objective_func,
         torch.save(model.state_dict(), path)
 
     if save_output:
-        configs = configs_df()
+        configs, _ = configs_df()
         
         history_df = model_history_df(model)
+        # Initialize alpha column with zeros/NaN for initial points
+        history_df['alpha'] = float('nan')
 
-        dir_name = directory_name()
+        # Convert alpha_l tensors to numpy arrays before assignment
+        alpha_numpy = [alpha.detach().numpy() for alpha in alpha_l]
+
+
+        #count from the end od the dataframe up to length of alpha_l and that's where you put alpha_l
+        history_df.iloc[-(len(alpha_l)):, -1] = alpha_numpy
+
         dir_path = make_output_dirname(dir_name)
 
         df_path = os.path.join(dir_path, 'history.csv')
@@ -325,7 +356,7 @@ def BayesOpt_all_params(true_objective_func,
         configs_df_path = os.path.join(dir_path, 'configs.csv')
         configs.to_csv(configs_df_path, index=False)
 
-    return iterations, true_objecctive_funcs
+    return iterations, true_objecctive_funcs, dir_path
 
 
 def get_observed_best_parameters(model):
@@ -343,65 +374,10 @@ def make_output_dirname(dir_name):
     output_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output', dir_name)
     if not os.path.exists(output_path):
         os.makedirs(output_path)
+        print(f'created output directory {output_path}')
     return output_path
 
-def make_pythia_card(aLund, 
-                     bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
-                    sigma,
-                    # enhancedFraction,
-                    # enhancedWidth,
-                    # ProbStoUD,
-                    # probQQtoQ,
-                    # probSQtoQQ,
-                    # ProbQQ1toQQ0,
-                    # alphaSvalue,
-                    # pTmin
-                    ):
-    
-    BO_Cards_dir = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'BO_Cards')
-    if not os.path.exists(BO_Cards_dir):
-        os.makedirs(BO_Cards_dir)
 
-    filename = f"ALEPH_1996_S3486095_BO_card.cmnd"
-    file_path = os.path.join(BO_Cards_dir, filename)
-    with open(file_path,'w') as f:
-        first_block="""Main:numberOfEvents = 3000          ! number of events to generate
-Next:numberShowEvent = 0           ! suppress full listing of first events
-# random seed
-Random:setSeed = on
-Random:seed= 0
-! 2) Beam parameter settings.
-Beams:idA = 11                ! first beam,  e- = 11
-Beams:idB = -11                ! second beam, e+ = -11
-Beams:eCM = 91.2               ! CM energy of collision
-# Pythia 8 settings for LEP
-# Hadronic decays including b quarks, with ISR photons switched off
-WeakSingleBoson:ffbar2gmZ = on
-23:onMode = off
-23:onIfAny = 1 2 3 4 5
-PDF:lepton = off
-SpaceShower:QEDshowerByL = off\n\n"""
-        f.write(first_block)
-        # f.write(f"Random:seed={indx+1}")
-        f.write(f"StringZ:aLund = {aLund}\n\n")
-        f.write(f"StringZ:bLund = {bLund}\n\n")
-        f.write(f"StringZ:rFactC = {rFactC}\n\n")
-        f.write(f"StringZ:rFactB = {rFactB}\n\n")
-        f.write(f"StringZ:aExtraSQuark = {aExtraSQuark}\n\n")
-        f.write(f"StringZ:aExtraDiquark = {aExtraDiquark}\n\n")
-        f.write(f"StringPT:sigma = {sigma}\n\n")
-        # f.write(f"StringPT:enhancedFraction = {enhancedFraction}\n\n")
-        # f.write(f"StringPT:enhancedWidth = {enhancedWidth}\n\n")
-        # f.write(f"StringFlav:ProbStoUD = {ProbStoUD}\n\n")
-        # f.write(f"StringFlav:probQQtoQ = {probQQtoQ}\n\n")
-        # f.write(f"StringFlav:probSQtoQQ = {probSQtoQQ}\n\n")
-        # f.write(f"StringFlav:ProbQQ1toQQ0 = {ProbQQ1toQQ0}\n\n")
-        # f.write(f"TimeShower:alphaSvalue = {alphaSvalue}\n\n")
-        # f.write(f"TimeShower:pTmin = {pTmin}\n\n")
         
 
 

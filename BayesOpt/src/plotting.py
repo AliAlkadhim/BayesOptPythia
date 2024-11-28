@@ -74,7 +74,7 @@ def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=
 
 
 
-def plot_all(model,set_xy_lim=False):
+def plot_all(model,dirname, set_xy_lim=False, save_fig=False):
   n_rows = num_params//3
   fig, axs = plt.subplots(n_rows,3,figsize=(17,14))
   axs=axs.ravel()
@@ -82,5 +82,8 @@ def plot_all(model,set_xy_lim=False):
   for axind, ax in enumerate(axs):
     plot_model_param(model, pram_postfixs[axind], ax,filter_observed_data = False,  set_xy_lim=set_xy_lim)
   plt.tight_layout()
-  plt.show()
+  if not save_fig:
+    plt.show()
+  else:
+    plt.savefig(os.path.join(dirname, 'parmetera_BO_plot.pdf'))
 

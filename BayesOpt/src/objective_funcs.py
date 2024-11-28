@@ -32,6 +32,10 @@ from tqdm import tqdm
 from configs import *
 
 from BayesOpt_utils import *
+from pythia_SBI_utils import *
+
+BAYESOPT_BASE = os.environ['BAYESOPT_BASE']
+
 def quadratic_form(point, values):
   y = 0
   scale = 1
@@ -80,11 +84,11 @@ def toy_objective_func_three_min(aLund,
                     rFactB,
                     aExtraSQuark,
                     aExtraDiquark,
-                    sigma,
-                    enhancedFraction,
-                    enhancedWidth,
-                    alphaSvalue,
-                    pTmin
+                    # sigma,
+                    # enhancedFraction,
+                    # enhancedWidth,
+                    # alphaSvalue,
+                    # pTmin
                         ):
     # each minimum is a quadratic term
     # 3 minima
@@ -94,11 +98,11 @@ def toy_objective_func_three_min(aLund,
                     rFactB,
                     aExtraSQuark,
                     aExtraDiquark,
-                    sigma,
-                    enhancedFraction,
-                    enhancedWidth,
-                    alphaSvalue,
-                    pTmin
+                    # sigma,
+                    # enhancedFraction,
+                    # enhancedWidth,
+                    # alphaSvalue,
+                    # pTmin
                      ]
 
     y1 = quadratic_form(point, MONASH_DICT)
@@ -109,6 +113,64 @@ def toy_objective_func_three_min(aLund,
     return result# + np.random.normal(0,1)#random noise
 
 
+def make_pythia_card(aLund, 
+                     bLund,
+                    rFactC,
+                    rFactB,
+                    aExtraSQuark,
+                    aExtraDiquark,
+                    # sigma,
+                    # enhancedFraction,
+                    # enhancedWidth,
+                    # ProbStoUD,
+                    # probQQtoQ,
+                    # probSQtoQQ,
+                    # ProbQQ1toQQ0,
+                    # alphaSvalue,
+                    # pTmin
+                    ):
+    
+    BO_Cards_dir = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'BO_Cards')
+    if not os.path.exists(BO_Cards_dir):
+        os.makedirs(BO_Cards_dir)
+
+    filename = f"ALEPH_1996_S3486095_BO_card.cmnd"
+    file_path = os.path.join(BO_Cards_dir, filename)
+    with open(file_path,'w') as f:
+        first_block="""Main:numberOfEvents = 3000          ! number of events to generate
+Next:numberShowEvent = 0           ! suppress full listing of first events
+# random seed
+Random:setSeed = on
+Random:seed= 0
+! 2) Beam parameter settings.
+Beams:idA = 11                ! first beam,  e- = 11
+Beams:idB = -11                ! second beam, e+ = -11
+Beams:eCM = 91.2               ! CM energy of collision
+# Pythia 8 settings for LEP
+# Hadronic decays including b quarks, with ISR photons switched off
+WeakSingleBoson:ffbar2gmZ = on
+23:onMode = off
+23:onIfAny = 1 2 3 4 5
+PDF:lepton = off
+SpaceShower:QEDshowerByL = off\n\n"""
+        f.write(first_block)
+        # f.write(f"Random:seed={indx+1}")
+        f.write(f"StringZ:aLund = {aLund}\n\n")
+        f.write(f"StringZ:bLund = {bLund}\n\n")
+        f.write(f"StringZ:rFactC = {rFactC}\n\n")
+        f.write(f"StringZ:rFactB = {rFactB}\n\n")
+        f.write(f"StringZ:aExtraSQuark = {aExtraSQuark}\n\n")
+        f.write(f"StringZ:aExtraDiquark = {aExtraDiquark}\n\n")
+        # f.write(f"StringPT:sigma = {sigma}\n\n")
+        # f.write(f"StringPT:enhancedFraction = {enhancedFraction}\n\n")
+        # f.write(f"StringPT:enhancedWidth = {enhancedWidth}\n\n")
+        # f.write(f"StringFlav:ProbStoUD = {ProbStoUD}\n\n")
+        # f.write(f"StringFlav:probQQtoQ = {probQQtoQ}\n\n")
+        # f.write(f"StringFlav:probSQtoQQ = {probSQtoQQ}\n\n")
+        # f.write(f"StringFlav:ProbQQ1toQQ0 = {ProbQQ1toQQ0}\n\n")
+        # f.write(f"TimeShower:alphaSvalue = {alphaSvalue}\n\n")
+        # f.write(f"TimeShower:pTmin = {pTmin}\n\n")
+
 
 def pythia_objective_func(aLund, 
                      bLund,
@@ -116,7 +178,7 @@ def pythia_objective_func(aLund,
                     rFactB,
                     aExtraSQuark,
                     aExtraDiquark,
-                    sigma,
+                    # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
                     # ProbStoUD,
@@ -134,7 +196,7 @@ def pythia_objective_func(aLund,
                     rFactB,
                     aExtraSQuark,
                     aExtraDiquark,
-                    sigma,
+                    # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
                     # ProbStoUD,

@@ -15,17 +15,15 @@ WeakSingleBoson:ffbar2gmZ = on
 PDF:lepton = off
 SpaceShower:QEDshowerByL = off
 
-StringZ:aLund = 0.1
+StringZ:aLund = 0.6655952847931241
 
-StringZ:bLund = 0.1
+StringZ:bLund = 1.1396429191056112
 
-StringZ:rFactC = 0.1
+StringZ:rFactC = 1.1861807498672259
 
-StringZ:rFactB = 0.1
+StringZ:rFactB = 1.2296328094188773
 
-StringZ:aExtraSQuark = 0.3
+StringZ:aExtraSQuark = 1.5723926341340342
 
-StringZ:aExtraDiquark = 0.4
-
-StringPT:sigma = 0.5
+StringZ:aExtraDiquark = 1.6781128531940606
 

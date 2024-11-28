@@ -33,8 +33,11 @@ htmlcov/
 .pytest_cache/
 
 # Project specific
+*.csv
 *.yoda
 *.pkl
 *.npy
 *.hepmc
 *.fifo
+
+BayesOpt/output/

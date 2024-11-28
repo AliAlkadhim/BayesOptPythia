@@ -36,13 +36,17 @@ from models import *
 from plotting import *
 
 def main():
-    object_func = toy_objective_func_one_min
+    # object_func = toy_objective_func_one_min
+    object_func = toy_objective_func_three_min
 
     param_names = list(PARAM_DICT.keys())
     num_params =len(PARAM_DICT)
     print(f'num_params={num_params}')
-    num_train_points = num_params *6
-    train_df_new = make_train_dataset(PARAM_DICT=PARAM_DICT, points=num_train_points, true_objective_func=object_func)
+    num_train_points = NUM_TRAIN_POINTS
+    train_df_new = make_train_dataset(PARAM_DICT=PARAM_DICT, 
+                                      points=num_train_points, 
+                                      true_objective_func=object_func,
+                                      save_data=True)
     print(train_df_new.head())
 
     MINIMA = [MONASH_DICT, POINT2, POINT3]
@@ -67,12 +71,17 @@ def main():
     model = GPModel(train_x = train_x, train_y=train_y, likelihood=likelihood, kernel=KERNEL, heteroscedastic=False).double()
 
     # print_parameters(model)
-    model = train_model(model=model, train_x=train_x, train_y=train_y,  n_epochs=N_TRAIN_EPOCHS,print_=False)
+    model = train_model(model=model, 
+                        train_x=train_x, 
+                        train_y=train_y,  
+                        n_epochs=N_TRAIN_EPOCHS,
+                        print_=False,
+                        plot_loss=False)
 
     # plot_all(model=model)
 
 
-    iterations, true_objective_funcs = BayesOpt_all_params(true_objective_func=object_func,
+    iterations, true_objective_funcs, dir_name = BayesOpt_all_params(true_objective_func=object_func,
                                                                    model=model,
                                                                    optimize_acq_method=OPTIMIZE_ACQ_METHOD,
                     train_x=train_x,
@@ -81,7 +90,7 @@ def main():
                     acquisition = 'EI',
                     retrain_gp=False,
                     print_=False,
-                   save_model=True,
+                   save_model=False,
                     OPTIMIZE_ACQ=True,
                     suggest_monash_point=False,
                     n_optimize_acq_iter=N_OPTIMIZE_ACQ_ITER,
@@ -95,7 +104,8 @@ def main():
     best_parameters, best_f = get_observed_best_parameters(model)
     print(f'best_parameters={best_parameters}')
     print(f'best_f={best_f}')
-    plot_all(model=model)
+
+    plot_all(model=model,dirname=dir_name, set_xy_lim=False, save_fig=True)
     
 
 if __name__=="__main__":
