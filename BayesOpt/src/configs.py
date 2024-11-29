@@ -41,11 +41,13 @@ POINT2 = {key:0.5*value for key, value in MONASH_DICT.items()}
 POINT3 = {key:1.5*value for key, value in MONASH_DICT.items()}
 
 NUM_PYTHIA_EVENTS=250000
+# NUM_PYTHIA_EVENTS=1000
 #250000, 1000
 KERNEL = 'Matern'
 NUM_TRAIN_POINTS=25
 N_TRAIN_EPOCHS=100
-N_BO_ITERATIONS = 2# num_params * 30
+N_BO_ITERATIONS = 140# num_params * 30
+#N_BO_ITERATIONS = 2
 N_OPTIMIZE_ACQ_ITER = 50
 N_RESTARTS = 25
 # OPTIMIZE_ACQ_METHOD: ['GD', 'Adam_restarts_clip_bounds', 'Adam_no_clip_bounds', 'scipy']

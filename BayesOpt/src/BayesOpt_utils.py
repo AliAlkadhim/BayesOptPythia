@@ -497,6 +497,21 @@ def run_valid_card(best_parameters):
     mv ALEPH_1996_S3486095_hist_valid_0.yoda ALEPH_YODAS_BayesOpt/""")
 
 
+def load_history_df(path_name):
+    history_df_path = os.path.join(path_name, 'history.csv')
+    history_df = pd.read_csv(history_df_path)
+    return history_df
+
+def load_configs_df(path_name):
+    configs_df_path = os.path.join(path_name, 'configs.csv')
+    configs_df = pd.read_csv(configs_df_path)
+    return configs_df
+
+def load_best_params_df(path_name):
+    load_best_params_df_path = os.path.join(path_name, 'best_params.csv')
+    load_best_params_df = pd.read_csv(load_best_params_df_path)
+    return load_best_params_df
+
 if __name__ == '__main__':
     make_pythia_card(aLund=0.1  , 
                      bLund=0.1,
