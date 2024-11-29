@@ -98,10 +98,11 @@ def main():
                     minimize_method='SLSQP',
                     jac=None,
                     save_output=True,
-                        kappa=KAPPA)
+                        kappa=KAPPA, 
+                        params='CONFIG')
     
     
-    best_parameters, best_f = get_observed_best_parameters(model)
+    best_parameters, best_f = get_observed_best_parameters(model=model, true_objective_func=object_func, params='CONFIG')
     print(f'best_parameters={best_parameters}')
     print(f'best_f={best_f}')
 

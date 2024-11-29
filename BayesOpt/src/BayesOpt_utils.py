@@ -107,7 +107,7 @@ def make_train_dataset(PARAM_DICT, points,true_objective_func, save_data=True):
     df = pd.DataFrame(rows, columns=column_names)
     if save_data:
         true_objective_func_name=true_objective_func.__name__
-        gp_train_df_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func_name}_gp_train_data.csv')
+        gp_train_df_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func_name}_N_PYTHIA_EVENTS_{NUM_PYTHIA_EVENTS}_gp_train_data.csv')
         df.to_csv(gp_train_df_path)
         print(f'saved gp train data to {gp_train_df_path}')
     return df
@@ -117,19 +117,7 @@ def print_parameters(model):
     for param_name, param_tensor in state_dict.items():
         print(param_name, param_tensor)
 
-def configs_df():
-    configs_dict = {
-        'N_BO_ITERATIONS': N_BO_ITERATIONS,
-        'N_PARAMS': num_params,
-        'N_OPTIMIZE_ACQ_ITER': N_OPTIMIZE_ACQ_ITER,
-        'N_RESTARTS': N_RESTARTS,
-        'KERNEL': KERNEL,
-        'OPTIMIZE_ACQ_METHOD': OPTIMIZE_ACQ_METHOD,
-    }
-    config_string = '_'.join(f'{k}_{v}' for k, v in configs_dict.items())
 
-    df = pd.DataFrame([configs_dict])
-    return df, config_string
 
 def model_history_df(model):
     param_names = list(PARAM_DICT.keys())
@@ -142,15 +130,45 @@ def model_history_df(model):
     df = pd.DataFrame(data, columns=column_names)
     return df
 
+def configs_df(params='CONFIG'):
+    if params=='CONFIG':
+        configs_dict = {
+            'N_BO_ITERATIONS': N_BO_ITERATIONS,
+            'N_TRAIN_POINTS': NUM_TRAIN_POINTS,
+            'N_PARAMS': num_params,
+            'N_OPTIMIZE_ACQ_ITER': N_OPTIMIZE_ACQ_ITER,
+            'N_RESTARTS': N_RESTARTS,
+            'KERNEL': KERNEL,
+            'OPTIMIZE_ACQ_METHOD': OPTIMIZE_ACQ_METHOD,
+            'NUM_PYTHIA_EVENTS': NUM_PYTHIA_EVENTS,
+        }
 
-def directory_name(object_func):
+    else:
+        configs_dict = {
+            'N_BO_ITERATIONS': params['N_BO_ITERATIONS'],
+            'N_TRAIN_POINTS': params['N_TRAIN_POINTS'],
+            'N_PARAMS': num_params,
+            'N_OPTIMIZE_ACQ_ITER': params['N_OPTIMIZE_ACQ_ITER'],
+            'N_RESTARTS': params['N_RESTARTS'],
+            'KERNEL': KERNEL,
+            'OPTIMIZE_ACQ_METHOD': params['OPTIMIZE_ACQ_METHOD'],
+            'NUM_PYTHIA_EVENTS': NUM_PYTHIA_EVENTS,
+        }
+    
+    config_string = '_'.join(f'{k}_{v}' for k, v in configs_dict.items())
+
+
+    df = pd.DataFrame([configs_dict])
+    return df, config_string
+
+def directory_name(object_func, params):
     use_datetime=False
     if use_datetime:
         time = datetime.now().strftime("%Y%m%d_%H%M%S")
         dir_name = f'{object_func.__name__}_Tune_{time}'
     else:
-        df, config_string = configs_df()
-        dir_name = f'{object_func.__name__}_{config_string}_Tune'
+        df, config_string = configs_df(params)
+        dir_name = f'{object_func.__name__}_{config_string}'
     return dir_name
 
 def train_model(model, train_x, train_y, n_epochs, print_=False, plot_loss=False):
@@ -214,7 +232,8 @@ def BayesOpt_all_params(true_objective_func,
                         minimize_method='SLSQP',
                         jac=None,
                         save_output=True,
-                        kappa=KAPPA):
+                        kappa=KAPPA, 
+                        params='CONFIG'):
     # Use the Adam optimizer
 
     model.eval()
@@ -323,18 +342,18 @@ def BayesOpt_all_params(true_objective_func,
     train_size=train_x.shape[0]
     # we want to always save the model for every run because it has the whole history and data
     #calculate output directory name even if not saving, because it depends on time!
-    dir_name = directory_name(true_objective_func)
+    dir_name = directory_name(true_objective_func, params)
 
     if save_model:
         
 
-        dir_path = make_output_dirname(dir_name)
+        dir_path = make_output_dirpath(dir_name)
         path = os.path.join(dir_path, 'model.pth')
 
         torch.save(model.state_dict(), path)
 
     if save_output:
-        configs, _ = configs_df()
+        configs, _ = configs_df(params)
         
         history_df = model_history_df(model)
         # Initialize alpha column with zeros/NaN for initial points
@@ -347,7 +366,7 @@ def BayesOpt_all_params(true_objective_func,
         #count from the end od the dataframe up to length of alpha_l and that's where you put alpha_l
         history_df.iloc[-(len(alpha_l)):, -1] = alpha_numpy
 
-        dir_path = make_output_dirname(dir_name)
+        dir_path = make_output_dirpath(dir_name)
 
         df_path = os.path.join(dir_path, 'history.csv')
         
@@ -359,7 +378,10 @@ def BayesOpt_all_params(true_objective_func,
     return iterations, true_objecctive_funcs, dir_path
 
 
-def get_observed_best_parameters(model):
+def get_observed_best_parameters(model, true_objective_func, params):
+    dir_name = directory_name(true_objective_func, params)
+    dir_path = make_output_dirpath(dir_name)
+
     train_x = model.train_inputs[0].numpy()
     train_y = model.train_targets.numpy()
     best_f = train_y.min()
@@ -367,10 +389,15 @@ def get_observed_best_parameters(model):
     param_names = list(PARAM_DICT.keys())
     param_names = [param_name.split(':')[1] for param_name in param_names]
     best_params_dict = {k: v for k, v in zip(param_names, observed_min)}
+
+    best_params_dict['best_f'] = best_f
+    best_params_df = pd.DataFrame([best_params_dict])
+    best_params_df_path = os.path.join(dir_path, 'best_params.csv')
+    best_params_df.to_csv(best_params_df_path, index=False)
     return best_params_dict, best_f
 
 
-def make_output_dirname(dir_name):
+def make_output_dirpath(dir_name):
     output_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output', dir_name)
     if not os.path.exists(output_path):
         os.makedirs(output_path)

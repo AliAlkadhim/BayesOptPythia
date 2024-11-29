@@ -44,31 +44,39 @@ def quadratic_form(point, values):
     scale *= 1.2
   return y
 
-def toy_objective_func_one_min(aLund,
+def toy_objective_func_one_min(aLund, 
                      bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
+                    # rFactC,
+                    # rFactB,
+                    # aExtraSQuark,
+                    # aExtraDiquark,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # alphaSvalue,
-                    # pTmin
+                    ProbStoUD,
+                    probQQtoQ,
+                    # probSQtoQQ,
+                    # ProbQQ1toQQ0,
+                    alphaSvalue,
+                    pTmin
                         ):
     # each minimum is a quadratic term
     # 3 minima
-    point =         [aLund,
+    point =         [aLund, 
                      bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
+                    # rFactC,
+                    # rFactB,
+                    # aExtraSQuark,
+                    # aExtraDiquark,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # alphaSvalue,
-                    # pTmin
+                    ProbStoUD,
+                    probQQtoQ,
+                    # probSQtoQQ,
+                    # ProbQQ1toQQ0,
+                    alphaSvalue,
+                    pTmin
                      ]
 
     y1 = quadratic_form(point, MONASH_DICT)
@@ -78,31 +86,39 @@ def toy_objective_func_one_min(aLund,
 
     return result# + np.random.normal(0,1)
 
-def toy_objective_func_three_min(aLund,
+def toy_objective_func_three_min(aLund, 
                      bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
+                    # rFactC,
+                    # rFactB,
+                    # aExtraSQuark,
+                    # aExtraDiquark,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # alphaSvalue,
-                    # pTmin
+                    ProbStoUD,
+                    probQQtoQ,
+                    # probSQtoQQ,
+                    # ProbQQ1toQQ0,
+                    alphaSvalue,
+                    pTmin
                         ):
     # each minimum is a quadratic term
     # 3 minima
-    point =         [aLund,
+    point =         [aLund, 
                      bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
+                    # rFactC,
+                    # rFactB,
+                    # aExtraSQuark,
+                    # aExtraDiquark,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # alphaSvalue,
-                    # pTmin
+                    ProbStoUD,
+                    probQQtoQ,
+                    # probSQtoQQ,
+                    # ProbQQ1toQQ0,
+                    alphaSvalue,
+                    pTmin
                      ]
 
     y1 = quadratic_form(point, MONASH_DICT)
@@ -115,19 +131,19 @@ def toy_objective_func_three_min(aLund,
 
 def make_pythia_card(aLund, 
                      bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
+                    # rFactC,
+                    # rFactB,
+                    # aExtraSQuark,
+                    # aExtraDiquark,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # ProbStoUD,
-                    # probQQtoQ,
+                    ProbStoUD,
+                    probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    # alphaSvalue,
-                    # pTmin
+                    alphaSvalue,
+                    pTmin
                     ):
     
     BO_Cards_dir = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'BO_Cards')
@@ -137,7 +153,7 @@ def make_pythia_card(aLund,
     filename = f"ALEPH_1996_S3486095_BO_card.cmnd"
     file_path = os.path.join(BO_Cards_dir, filename)
     with open(file_path,'w') as f:
-        first_block="""Main:numberOfEvents = 3000          ! number of events to generate
+        first_block=f"""Main:numberOfEvents = {NUM_PYTHIA_EVENTS}          ! number of events to generate
 Next:numberShowEvent = 0           ! suppress full listing of first events
 # random seed
 Random:setSeed = on
@@ -157,54 +173,54 @@ SpaceShower:QEDshowerByL = off\n\n"""
         # f.write(f"Random:seed={indx+1}")
         f.write(f"StringZ:aLund = {aLund}\n\n")
         f.write(f"StringZ:bLund = {bLund}\n\n")
-        f.write(f"StringZ:rFactC = {rFactC}\n\n")
-        f.write(f"StringZ:rFactB = {rFactB}\n\n")
-        f.write(f"StringZ:aExtraSQuark = {aExtraSQuark}\n\n")
-        f.write(f"StringZ:aExtraDiquark = {aExtraDiquark}\n\n")
+        # f.write(f"StringZ:rFactC = {rFactC}\n\n")
+        # f.write(f"StringZ:rFactB = {rFactB}\n\n")
+        # f.write(f"StringZ:aExtraSQuark = {aExtraSQuark}\n\n")
+        # f.write(f"StringZ:aExtraDiquark = {aExtraDiquark}\n\n")
         # f.write(f"StringPT:sigma = {sigma}\n\n")
         # f.write(f"StringPT:enhancedFraction = {enhancedFraction}\n\n")
         # f.write(f"StringPT:enhancedWidth = {enhancedWidth}\n\n")
-        # f.write(f"StringFlav:ProbStoUD = {ProbStoUD}\n\n")
-        # f.write(f"StringFlav:probQQtoQ = {probQQtoQ}\n\n")
+        f.write(f"StringFlav:ProbStoUD = {ProbStoUD}\n\n")
+        f.write(f"StringFlav:probQQtoQ = {probQQtoQ}\n\n")
         # f.write(f"StringFlav:probSQtoQQ = {probSQtoQQ}\n\n")
         # f.write(f"StringFlav:ProbQQ1toQQ0 = {ProbQQ1toQQ0}\n\n")
-        # f.write(f"TimeShower:alphaSvalue = {alphaSvalue}\n\n")
-        # f.write(f"TimeShower:pTmin = {pTmin}\n\n")
+        f.write(f"TimeShower:alphaSvalue = {alphaSvalue}\n\n")
+        f.write(f"TimeShower:pTmin = {pTmin}\n\n")
 
 
 def pythia_objective_func(aLund, 
                      bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
+                    # rFactC,
+                    # rFactB,
+                    # aExtraSQuark,
+                    # aExtraDiquark,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # ProbStoUD,
-                    # probQQtoQ,
+                    ProbStoUD,
+                    probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    # alphaSvalue,
-                    # pTmin
+                    alphaSvalue,
+                    pTmin
                     ):
     
     # step 1: write .cmnd file 
     make_pythia_card(aLund, 
                      bLund,
-                    rFactC,
-                    rFactB,
-                    aExtraSQuark,
-                    aExtraDiquark,
+                    # rFactC,
+                    # rFactB,
+                    # aExtraSQuark,
+                    # aExtraDiquark,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # ProbStoUD,
-                    # probQQtoQ,
+                    ProbStoUD,
+                    probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    # alphaSvalue,
-                    # pTmin
+                    alphaSvalue,
+                    pTmin
                     )
     #step 2 run main42 and rivet
     main42_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'src', 'main42')
