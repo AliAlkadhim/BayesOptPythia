@@ -1,6 +1,21 @@
 from configs import *
 from BayesOpt_utils import *
 
+
+import scienceplots
+import matplotlib.pyplot as plt
+import matplotlib as mp
+plt.style.use(['science', 'notebook', 'grid'])
+
+# Then set custom font configurations
+FONTSIZE = 20
+font = {
+    'family': 'serif',
+    'weight': 'normal',
+    'size': FONTSIZE
+}
+mp.rc('font', **font)
+
 def compare_uniform_sobol(PARAM_DICT,size):
     fig, ax = plt.subplots(1,2,figsize=(10,5))
     uniform_candidates = make_x_candidates(PARAM_DICT,size).detach().numpy()
@@ -38,13 +53,24 @@ def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=
         x_star = torch.linspace(train_x.min(), train_x.max(), 2000)
     else:
         # x_star = make_x_candidates(PARAM_DICT,200)
-        x_star  = make_multidim_xstar(model, param,2000)
+        # x_star  = make_multidim_xstar(model, param,2000)
+
+        mean_values = train_x.mean(axis=0)
+        x_star = torch.linspace(train_x.min(axis=0)[param_index],
+                                train_x.max(axis=0)[param_index],
+                                2000).unsqueeze(1)
+        # Create a grid where only the parameter of interest varies
+        other_params = mean_values.clone()
+        other_params = torch.tensor(other_params).repeat(2000, 1)
+        other_params[:, param_index] = x_star.squeeze()
+        x_star = other_params
 
     model.eval()
     model.likelihood.eval()
-    predictive_distribution = model.predict(x_star)
-    lower, upper = predictive_distribution.confidence_region()
-    pred = predictive_distribution.mean.numpy()
+    with torch.no_grad():
+        predictive_distribution = model.predict(x_star)
+        lower, upper = predictive_distribution.confidence_region()
+        pred = predictive_distribution.mean.numpy()
 
     if train_x.shape[1] == 1 or train_x.ndim ==1:
         x_star_param =x_star.numpy()
@@ -75,9 +101,14 @@ def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=
 
 
 def plot_all(model,dirname, set_xy_lim=False, save_fig=False):
-  n_rows = num_params//3
-  fig, axs = plt.subplots(n_rows,3,figsize=(17,14))
-  axs=axs.ravel()
+  if num_params <= 3:
+    n_rows = 1
+    fig, axs = plt.subplots(n_rows,1,figsize=(17,14))
+  else:
+    n_rows = num_params//3
+    fig, axs = plt.subplots(n_rows,3,figsize=(17,14))
+    axs=axs.ravel()
+    
   pram_postfixs = [p.split(':')[1] for p in param_names]
   for axind, ax in enumerate(axs):
     plot_model_param(model, pram_postfixs[axind], ax,filter_observed_data = False,  set_xy_lim=set_xy_lim)
@@ -87,3 +118,7 @@ def plot_all(model,dirname, set_xy_lim=False, save_fig=False):
   else:
     plt.savefig(os.path.join(dirname, 'parmetera_BO_plot.pdf'))
 
+
+
+
+# if __name__ == '__main__':

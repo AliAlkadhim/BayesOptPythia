@@ -171,7 +171,7 @@ def directory_name(object_func, params):
         dir_name = f'{object_func.__name__}_{config_string}'
     return dir_name
 
-def train_model(model, train_x, train_y, n_epochs, print_=False, plot_loss=False):
+def train_model(model, train_x, train_y, n_epochs, print_=False, plot_loss=False, ax=None):
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-2)
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(model.likelihood, model )
 
@@ -205,10 +205,10 @@ def train_model(model, train_x, train_y, n_epochs, print_=False, plot_loss=False
 
     if plot_loss:
         epochs=np.arange(n_epochs)
-        plt.plot(epochs, loss_vals)
-        plt.xlabel('epoch')
-        plt.ylabel('loss=likelihood')
-        plt.show()
+        ax.plot(epochs, loss_vals, alpha=0.4)
+        ax.set_xlabel('epoch',fontsize=20)
+        ax.set_ylabel('- log likelihood',fontsize=20)
+        
         # plt.savefig(
     return model
 
@@ -337,6 +337,7 @@ def BayesOpt_all_params(true_objective_func,
         if acq < kappa:
             print(f'STOPPING BO LOOP AT ITERATION {iteration}')
             break
+        
     ####################################################################
     # End BO loop
     train_size=train_x.shape[0]
@@ -375,6 +376,7 @@ def BayesOpt_all_params(true_objective_func,
         configs_df_path = os.path.join(dir_path, 'configs.csv')
         configs.to_csv(configs_df_path, index=False)
 
+
     return iterations, true_objecctive_funcs, dir_path
 
 
@@ -406,7 +408,25 @@ def make_output_dirpath(dir_name):
 
 
         
-
+def compare_uniform_sobol(PARAM_DICT,size):
+    fig, ax = plt.subplots(1,2,figsize=(10,5))
+    uniform_candidates = make_x_candidates(PARAM_DICT,size).detach().numpy()
+    a_uniform = uniform_candidates[:,0]
+    b_uniform = uniform_candidates[:,1]
+    ax[0].scatter(a_uniform, b_uniform)
+    ax[0].set_title('Uniform MC', fontsize=25)
+    
+    sobol_candidates = make_sobol_candidates(PARAM_DICT,size).detach().numpy()
+    a_sobol=sobol_candidates[:,0]
+    b_sobol=sobol_candidates[:,1]
+    ax[1].scatter(a_sobol, b_sobol)
+    ax[1].set_title('Sobol', fontsize=25)
+    
+    for i in range(2):
+        ax[i].set_xlabel(r'$x_1$', fontsize=25)
+        ax[i].set_ylabel(r'$x_2$', fontsize=25)
+    plt.tight_layout()
+    plt.show()
 
 def get_pbounds(PARAM_DICT):
     pbounds = {}
@@ -513,10 +533,11 @@ def load_best_params_df(path_name):
     return load_best_params_df
 
 if __name__ == '__main__':
-    make_pythia_card(aLund=0.1  , 
-                     bLund=0.1,
-                    rFactC=0.1,
-                    rFactB=0.1,
-                    aExtraSQuark=0.3,
-                    aExtraDiquark=0.4,
-                    sigma=0.5)
+    # make_pythia_card(aLund=0.1  , 
+    #                  bLund=0.1,
+    #                 rFactC=0.1,
+    #                 rFactB=0.1,
+    #                 aExtraSQuark=0.3,
+    #                 aExtraDiquark=0.4,
+    #                 sigma=0.5)
+    compare_uniform_sobol(PARAM_DICT,size=500)

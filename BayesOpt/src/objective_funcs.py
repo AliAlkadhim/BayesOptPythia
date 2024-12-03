@@ -53,12 +53,12 @@ def toy_objective_func_one_min(aLund,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    ProbStoUD,
-                    probQQtoQ,
+                    # ProbStoUD,
+                    # probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    alphaSvalue,
-                    pTmin
+                    # alphaSvalue,
+                    # pTmin
                         ):
     # each minimum is a quadratic term
     # 3 minima
@@ -71,12 +71,12 @@ def toy_objective_func_one_min(aLund,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    ProbStoUD,
-                    probQQtoQ,
+                    # ProbStoUD,
+                    # probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    alphaSvalue,
-                    pTmin
+                    # alphaSvalue,
+                    # pTmin
                      ]
 
     y1 = quadratic_form(point, MONASH_DICT)

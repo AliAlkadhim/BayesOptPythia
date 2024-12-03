@@ -36,8 +36,8 @@ from models import *
 from plotting import *
 
 def main():
-    object_func = toy_objective_func_one_min
-    # object_func = toy_objective_func_three_min
+    # object_func = toy_objective_func_one_min
+    object_func = toy_objective_func_three_min
 
     param_names = list(PARAM_DICT.keys())
     num_params =len(PARAM_DICT)
@@ -48,6 +48,8 @@ def main():
     n_optimize_acq_iter_l = [10, 50, 100]
     n_restarts_l = [5, 25]
     optimize_acq_method_l = ['Adam_restarts_clip_bounds', 'Adam_no_clip_bounds', 'scipy']
+
+    fig, ax = plt.subplots(1,1,figsize=(10,5))
 
     for num_train_points in num_train_points_l:
         for n_bo_iterations in n_bo_iterations_l:
@@ -95,35 +97,38 @@ def main():
                                             train_y=train_y,  
                                             n_epochs=N_TRAIN_EPOCHS,
                                             print_=False,
-                                            plot_loss=False)
-
+                                            plot_loss=True,
+                                            ax=ax)
+    ax.set_title(r'$f_{3min}$', fontsize=20)
+    ax.grid()
+    plt.savefig(os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output', 'post_processing', 'losses_f3min.pdf'))
+    plt.show()
                         # plot_all(model=model)
 
-
-                        iterations, true_objective_funcs, dir_name = BayesOpt_all_params(true_objective_func=object_func,
-                                      model=model,
-                                      optimize_acq_method=optimize_acq_method,
-                                        train_x=train_x,
-                                        train_y=train_y,
-                                        n_iterations=n_bo_iterations,
-                                        acquisition = 'EI',
-                                        retrain_gp=False,
-                                        print_=False,
-                                    save_model=True,
-                                        OPTIMIZE_ACQ=True,
-                                        suggest_monash_point=False,
-                                        n_optimize_acq_iter=n_optimize_acq_iter,
-                                        n_restarts=n_restarts,
-                                        minimize_method='SLSQP',
-                                        jac=None,
-                                        save_output=True,
-                                            kappa=KAPPA, 
-                                            params=hyper_params_dict)
+                        # iterations, true_objective_funcs, dir_name = BayesOpt_all_params(true_objective_func=object_func,
+                        #               model=model,
+                        #               optimize_acq_method=optimize_acq_method,
+                        #                 train_x=train_x,
+                        #                 train_y=train_y,
+                        #                 n_iterations=n_bo_iterations,
+                        #                 acquisition = 'EI',
+                        #                 retrain_gp=False,
+                        #                 print_=False,
+                        #             save_model=True,
+                        #                 OPTIMIZE_ACQ=True,
+                        #                 suggest_monash_point=False,
+                        #                 n_optimize_acq_iter=n_optimize_acq_iter,
+                        #                 n_restarts=n_restarts,
+                        #                 minimize_method='SLSQP',
+                        #                 jac=None,
+                        #                 save_output=True,
+                        #                     kappa=KAPPA, 
+                        #                     params=hyper_params_dict)
                         
                         
-                        best_parameters, best_f = get_observed_best_parameters(model=model, true_objective_func=object_func, params=hyper_params_dict)
-                        print(f'best_parameters={best_parameters}')
-                        print(f'best_f={best_f}')
+                        # best_parameters, best_f = get_observed_best_parameters(model=model, true_objective_func=object_func, params=hyper_params_dict)
+                        # print(f'best_parameters={best_parameters}')
+                        # print(f'best_f={best_f}')
 
     # plot_all(model=model,dirname=dir_name, set_xy_lim=False, save_fig=True)
     

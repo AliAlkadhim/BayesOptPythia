@@ -41,7 +41,8 @@ class GPModel(gpytorch.models.ExactGP):
               # lengthscale_prior=gpytorch.priors.LogNormalPrior(loc= torch.log(torch.tensor([train_x.size(-1)/2])), scale=1)
           ))
         elif kernel == 'Matern':
-          self.covar_module = ScaleKernel(gpytorch.kernels.MaternKernel(ard_num_dims=train_x.size(-1),
+          self.covar_module = ScaleKernel(gpytorch.kernels.MaternKernel(
+             ard_num_dims=train_x.size(-1),
                                                                     #  lengthscale_prior=gpytorch.priors.LogNormalPrior(loc= torch.log(torch.tensor([train_x.size(-1)/2])), scale=1)
                                                                     )
           )

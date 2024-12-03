@@ -44,7 +44,7 @@ def main():
     num_params =len(PARAM_DICT)
     print(f'num_params={num_params}')
     num_train_points = NUM_TRAIN_POINTS
-    MAKE_TRAIN_DATASET = False
+    MAKE_TRAIN_DATASET = True
     if MAKE_TRAIN_DATASET:
         train_df_new = make_train_dataset(PARAM_DICT=PARAM_DICT, 
                                       points=num_train_points, 
@@ -53,7 +53,7 @@ def main():
         print(train_df_new.head())
 
     else:
-        train_df_new_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', 'pythia_objective_func_N_PYTHIA_EVENTS_250000_gp_train_data.csv')
+        train_df_new_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'pythia_objective_func_N_PYTHIA_EVENTS_250000_N_TRAIN_POINTS_{NUM_TRAIN_POINTS}_gp_train_data.csv')
         train_df_new = pd.read_csv(train_df_new_path)
         print(train_df_new.head())
 
