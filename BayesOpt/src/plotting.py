@@ -1,6 +1,7 @@
 from configs import *
 from BayesOpt_utils import *
 
+from ax.core.observation import ObservationFeatures
 
 import scienceplots
 import matplotlib.pyplot as plt
@@ -15,6 +16,7 @@ font = {
     'size': FONTSIZE
 }
 mp.rc('font', **font)
+mp.rc('text', usetex=True)
 
 def compare_uniform_sobol(PARAM_DICT,size):
     fig, ax = plt.subplots(1,2,figsize=(10,5))
@@ -108,7 +110,7 @@ def plot_all(model,dirname, set_xy_lim=False, save_fig=False):
     n_rows = num_params//3
     fig, axs = plt.subplots(n_rows,3,figsize=(17,14))
     axs=axs.ravel()
-    
+
   pram_postfixs = [p.split(':')[1] for p in param_names]
   for axind, ax in enumerate(axs):
     plot_model_param(model, pram_postfixs[axind], ax,filter_observed_data = False,  set_xy_lim=set_xy_lim)
@@ -116,7 +118,45 @@ def plot_all(model,dirname, set_xy_lim=False, save_fig=False):
   if not save_fig:
     plt.show()
   else:
-    plt.savefig(os.path.join(dirname, 'parmetera_BO_plot.pdf'))
+    plt.savefig(os.path.join(dirname, 'parmeters_BO_plot.pdf'))
+
+
+
+def BoTorch_plot_model_f_vs_param(model, param, ax, history_df, reference_dict=MONASH_DICT):
+    PARAM_DICT_small = {key.split(':')[1] : val for key,val in PARAM_DICT.items()}
+    # param = 'aLund'
+    N_points = 1000
+    # reference_dict = MONASH_DICT
+    param_linspace =  np.linspace(PARAM_DICT_small[param][0], PARAM_DICT_small[param][1], N_points)
+    param_observation_dicts = []
+    for val in param_linspace:
+        new_dict = reference_dict.copy()
+        new_dict[param] = val
+        param_observation_dicts.append(new_dict)
+    
+    means_a, covs_a = model.predict([
+            ObservationFeatures(parameters=pointi) for pointi in param_observation_dicts
+        ]
+    )
+
+    chi2_means = np.array(list(means_a.values())[0])
+    chi2_covs = np.sqrt(np.array(covs_a['pythia_objective_func']['pythia_objective_func']))
+    
+    ax.plot(param_linspace, chi2_means, c='k', linewidth=3, label='GP Mean Prediction')
+
+    ax.set_ylim(0, chi2_means.max())
+    # ypos = (ax.get_ylim()[1] -ax.get_ylim()[0])/2
+    # xpos = best_parameters_reduced[param] + 0.05
+    # ax.text(x= xpos, y=ypos, s= '{:.3f}'.format(best_parameters_reduced[param]), color='r')
+  # ax.axvline(x=best_parameters_reduced[param], color='r')
+
+    ax.fill_between(x=param_linspace, y1=chi2_means-chi2_covs,y2=chi2_means+chi2_covs, alpha=0.3, color='b')
+    ax.set_xlabel(param, fontsize=27)
+    ax.set_ylabel(r'$f_{\text{pythia}}$', fontsize=27)
+    ax.scatter(history_df[param], history_df['pythia_objective_func'], color='green', label='Observed Data')
+
+    ax.legend(fontsize=24)
+    # plt.show()
 
 
 

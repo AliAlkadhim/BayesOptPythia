@@ -1,7 +1,7 @@
 
 PARAM_DICT = {
         'StringZ:aLund' : [0, 2.0],
-        'StringZ:bLund': [0, 2.0],
+        'StringZ:bLund': [0.2, 2.0],
         # 'StringZ:rFactC':[0.0, 2.0],
         # 'StringZ:rFactB': [0., 2.0],
         # 'StringZ:aExtraSQuark':[0.,2.],
@@ -40,8 +40,8 @@ num_params = len(param_names)
 POINT2 = {key:0.5*value for key, value in MONASH_DICT.items()}
 POINT3 = {key:1.5*value for key, value in MONASH_DICT.items()}
 
-NUM_PYTHIA_EVENTS=250000
-# NUM_PYTHIA_EVENTS=1000
+# NUM_PYTHIA_EVENTS=250000
+NUM_PYTHIA_EVENTS=1000
 #250000, 1000
 KERNEL = 'Matern'
 NUM_TRAIN_POINTS=25
