@@ -38,6 +38,9 @@ from ax.models.torch.botorch_modular.model import BoTorchModel
 from ax.models.torch.botorch_modular.surrogate import Surrogate
 from ax.modelbridge.generation_strategy import GenerationStep, GenerationStrategy
 from ax.modelbridge.registry import Models
+import botorch
+botorch.settings.debug(True)
+
 
 #`source /cvmfs/sft.cern.ch/lcg/views/LCG_102/x86_64-centos7-gcc11-opt/setup.sh`
 from glob import glob
@@ -55,12 +58,29 @@ from plotting import *
 BAYESOPT_BASE=os.environ['BAYESOPT_BASE']
 
 
+MONASH_DICT = {
+    "aLund" : 0.68, 
+    "bLund" : 0.98,
+    # "rFactC": 1.32,
+    # "rFactB":0.855,
+    # "aExtraSQuark": 0.0,
+    # "aExtraDiquark":0.97,
+    # "sigma":0.335,
+    # "enhancedFraction":0.01,
+    # "enhancedWidth":2.0,
+    "ProbStoUD":0.217,
+    "probQQtoQ":0.081,
+    # "probSQtoQQ":0.915,
+    # "ProbQQ1toQQ0": 0.0275,
+    "alphaSvalue": 0.1365,
+    "pTmin": 0.5
+}
 
 
-N_TRAIN_POINTS = 20
-N_BO_ITERATIONS = 40
+N_TRAIN_POINTS = 25
 
-n_bo_iterations_l = [40, 80, 120, 160]
+# n_bo_iterations_l = [20, 40, 60, 80]
+n_bo_iterations_l = [40]
 class SimpleCustomGP(ExactGP, GPyTorchModel):
 
     _num_outputs = 1  # to inform GPyTorchModel API
@@ -186,6 +206,23 @@ def main():
                         ],
         objectives = {"pythia_objective_func": ObjectiveProperties(minimize=True)},
         )
+        SUGGEST_MONASH=False
+        if SUGGEST_MONASH:
+            suggest_param, suggest_ind = ax_client.attach_trial(
+                parameters=MONASH_DICT
+            )
+            ax_client.complete_trial(trial_index=suggest_ind, raw_data=pythia_objective_func(
+                    aLund=suggest_param["aLund"], 
+                    bLund=suggest_param["bLund"],
+                    # aExtraSQuark=suggest_param["aExtraSQuark"],
+                    # sigma=suggest_param["sigma"],
+                    # enhancedFraction=suggest_param["enhancedFraction"],
+                    ProbStoUD=suggest_param["ProbStoUD"],
+                    probQQtoQ=suggest_param["probQQtoQ"],
+                    # probSQtoQQ=suggest_param["probSQtoQQ"],
+                    alphaSvalue=suggest_param["alphaSvalue"],
+                    pTmin=suggest_param["pTmin"]
+                    ))
 
         N_TOTAL_ITERATIONS = N_TRAIN_POINTS + n_bo_iterations
         for i in range(N_TOTAL_ITERATIONS):

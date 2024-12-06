@@ -171,8 +171,8 @@ def test_statistic(data_keys, mc_keys, dfdata, dfpred, which = 0):
     # if nbins == 0:
     #     raise ZeroDivisionError("nbins = 0 in test statistic")
         
-    # nbins = np.where(nbins < 1e-3, 1, nbins)
-    # return np.sqrt(Y/nbins)
+    nbins = np.where(nbins < 1e-3, 1, nbins)
+    Y = np.sqrt(Y/nbins)
     return Y
 
 
@@ -192,7 +192,7 @@ def make_hists(dfdata, dfbest, filtered_data_keys, filtered_mc_keys):
         hists.append((hist_name, edges, data_val, pred_val))
     return hists
 
-def plt_sim_data_hist(ax, hist):
+def plt_sim_data_hist_monash(ax, hist):
     name, edges, data_val, pred_val = hist
     
     xmin = 0
@@ -203,11 +203,36 @@ def plt_sim_data_hist(ax, hist):
     ymax = 1.25 * data_val.max()
     ax.set_ylim(ymin, ymax)
 
-    ax.text(xmin + 0.7*(xmax-xmin), ymin + 0.2*(ymax-ymin), name)
-    
+    # ax.text(xmin + 0.7*(xmax-xmin), ymin + 0.2*(ymax-ymin), name)
+    ax.set_title(name, fontsize=22)
     ax.step(y=data_val, x=edges, label='data')
-    ax.step(y=pred_val, x=edges, label='pred')
+    ax.step(y=pred_val, x=edges, label='Monash')
     ax.legend()
+
+
+def plt_sim_data_hist_valid(ax, hist, BOTorch=False):
+    name, edges, data_val, pred_val = hist
+    
+    xmin = 0
+    xmax = edges.max()
+    ax.set_ylim(xmin, xmax)
+    
+    ymin = 0
+    ymax = 1.25 * data_val.max()
+    ax.set_ylim(ymin, ymax)
+
+    # ax.text(xmin + 0.7*(xmax-xmin), ymin + 0.2*(ymax-ymin), name)
+    ax.set_title(name,fontsize=22)
+    
+    # ax.step(y=data_val, x=edges, label='data')
+    if BOTorch:
+         ax.step(y=pred_val, x=edges, label='BO-qEI')
+    else:
+        ax.step(y=pred_val, x=edges, label='BO-EI')
+    ax.legend()
+
+
+
             
 def plot_dist(hist_names, hists, filename='fig_bestfit_dist_all.png'):
     
@@ -220,7 +245,7 @@ def plot_dist(hist_names, hists, filename='fig_bestfit_dist_all.png'):
     fig, ax = plt.subplots(nrows, ncols, figsize=(15, 20), edgecolor='k')
     ax = ax.ravel()
     for hist_ind, hist in enumerate(hists[:nhists]):
-        plt_sim_data_hist(ax[hist_ind], hist)
+        plt_sim_data_hist_monash(ax[hist_ind], hist)
     
     plt.tight_layout()
     plt.savefig(filename)   
@@ -228,7 +253,26 @@ def plot_dist(hist_names, hists, filename='fig_bestfit_dist_all.png'):
     plt.show()
         
     
+def plot_dist_with_monash(hist_names, monash_hists, valid_hists, filename='fig_bestfit_dist_all.png', BOTorch=False):
     
+        
+    nhists= len(hist_names)
+    ncols = 3
+    nrows = nhists // ncols
+    nhists= nrows * ncols
+    
+    fig, ax = plt.subplots(nrows, ncols, figsize=(15, 20), edgecolor='k')
+    ax = ax.ravel()
+    for hist_ind, hist in enumerate(monash_hists[:nhists]):
+        plt_sim_data_hist_monash(ax[hist_ind], hist)
+        
+    for hist_ind, hist in enumerate(valid_hists[:nhists]):
+        plt_sim_data_hist_valid(ax[hist_ind], hist, BOTorch=BOTorch)
+    
+    plt.tight_layout()
+    plt.savefig(filename)   
+    
+    plt.show()
     
 
 def plot_cdf(df, a=None, b=None,

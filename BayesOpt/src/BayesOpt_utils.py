@@ -107,7 +107,7 @@ def make_train_dataset(PARAM_DICT, points,true_objective_func, save_data=True):
     df = pd.DataFrame(rows, columns=column_names)
     if save_data:
         true_objective_func_name=true_objective_func.__name__
-        gp_train_df_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func_name}_N_PYTHIA_EVENTS_{NUM_PYTHIA_EVENTS}_gp_train_data.csv')
+        gp_train_df_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func_name}_N_PYTHIA_EVENTS_{NUM_PYTHIA_EVENTS}_N_TRAIN_POINTS_{NUM_TRAIN_POINTS}_gp_train_data.csv')
         df.to_csv(gp_train_df_path)
         print(f'saved gp train data to {gp_train_df_path}')
     return df
@@ -444,7 +444,10 @@ def reduce_filtered_keys(filtered_data_keys, filtered_mc_keys):
     reduced_data_keys = []
     reduced_mc_keys = []
     # List of histogram keys that need to be removed
-    hists_to_remove = ['d35-x01-y01', 'd36-x01-y01', 'd39-x01-y01', 'd40-x01-y01']
+    hists_to_remove = ['d35-x01-y01', 
+                       'd36-x01-y01', 
+                       'd39-x01-y01', 
+                       'd40-x01-y01']
     
     # Iterate over each data key
     for data_key in filtered_data_keys:
@@ -527,8 +530,11 @@ def load_configs_df(path_name):
     configs_df = pd.read_csv(configs_df_path)
     return configs_df
 
-def load_best_params_df(path_name):
-    load_best_params_df_path = os.path.join(path_name, 'best_params.csv')
+def load_best_params_df(path_name, BOTorch=False):
+    if BOTorch:
+        load_best_params_df_path = os.path.join(path_name, 'best_parameters.csv')
+    else:
+        load_best_params_df_path = os.path.join(path_name, 'best_params.csv')
     load_best_params_df = pd.read_csv(load_best_params_df_path)
     return load_best_params_df
 

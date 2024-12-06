@@ -78,10 +78,19 @@ class Yoda2Numpy:
             yoda_dir = ''
             postfix  = f'_hist_{index:d}'
             return f'{YODA_BASE:s}/{filename:s}{postfix:s}.yoda'
+        if htype == 'mon':
+            yoda_dir = ''
+            postfix  = f'_hist_monash_{index:d}'
+            return f'{YODA_BASE:s}/{filename:s}{postfix:s}.yoda'
         
         if htype == 'val':
             yoda_dir = ''
             postfix  = f'_hist_valid_{index:d}'
+            return f'{YODA_BASE:s}/{filename:s}{postfix:s}.yoda'
+        
+        if htype == 'qEI':
+            yoda_dir = ''
+            postfix  = f'_hist_qEI_valid_{index:d}'
             return f'{YODA_BASE:s}/{filename:s}{postfix:s}.yoda'
         
         elif htype == 'dat':

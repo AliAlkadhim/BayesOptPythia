@@ -1,3 +1,4 @@
+import time
 import torch._dynamo
 torch._dynamo.config.suppress_errors = True
 import numpy as np
@@ -8,7 +9,7 @@ from scipy.optimize import minimize
 import torch
 
 import matplotlib.pyplot as plt
-FONTSIZE = 14
+FONTSIZE = 24
 font = {'family' : 'serif',
         'weight' : 'normal',
         'size'   : FONTSIZE}
@@ -53,12 +54,12 @@ def toy_objective_func_one_min(aLund,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # ProbStoUD,
-                    # probQQtoQ,
+                    ProbStoUD,
+                    probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    # alphaSvalue,
-                    # pTmin
+                    alphaSvalue,
+                    pTmin
                         ):
     # each minimum is a quadratic term
     # 3 minima
@@ -71,12 +72,12 @@ def toy_objective_func_one_min(aLund,
                     # sigma,
                     # enhancedFraction,
                     # enhancedWidth,
-                    # ProbStoUD,
-                    # probQQtoQ,
+                    ProbStoUD,
+                    probQQtoQ,
                     # probSQtoQQ,
                     # ProbQQ1toQQ0,
-                    # alphaSvalue,
-                    # pTmin
+                    alphaSvalue,
+                    pTmin
                      ]
 
     y1 = quadratic_form(point, MONASH_DICT)
@@ -234,7 +235,8 @@ def pythia_objective_func(aLund,
     rm {temp_path}/ALEPH_1996_S3486095_card.fifo
     mv ALEPH_1996_S3486095_hist_0.yoda {ALEPH_YODAS_path}""")
     
-
+    
+    time.sleep(0.001)
     #step 3: get generated yoda file histograms in the form of dataframes
     dfdata, dfsims, generated_indices = get_data()
     print('DATA DATAFRAME')
@@ -248,9 +250,14 @@ def pythia_objective_func(aLund,
     filtered_data_keys, filtered_mc_keys = filter_keys(dfdata, dfsims, data_keys, mc_keys)
 
     #step 4.5: take out bad histograms
-    reduced_data_keys, reduced_mc_keys = reduce_filtered_keys(filtered_data_keys, filtered_mc_keys)
-    print('reduced_data_keys, reduced_mc_keys', reduced_data_keys, reduced_mc_keys)
-    reduced_data_keys, reduced_mc_keys = reduced_data_keys[:7], reduced_mc_keys[:7]
+    REDUCE_KEYS = True
+    print(f'REDUCE_KEYS = {REDUCE_KEYS}')
+    if REDUCE_KEYS:
+        reduced_data_keys, reduced_mc_keys = reduce_filtered_keys(filtered_data_keys, filtered_mc_keys)
+        print('reduced_data_keys, reduced_mc_keys', reduced_data_keys, reduced_mc_keys)
+        reduced_data_keys, reduced_mc_keys = reduced_data_keys[:7], reduced_mc_keys[:7]
+    else:
+        reduced_data_keys, reduced_mc_keys = filtered_data_keys, filtered_mc_keys
     
     #step 5: get test statistic at each point
     X0 = {}

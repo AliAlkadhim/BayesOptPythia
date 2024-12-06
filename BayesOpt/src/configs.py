@@ -1,6 +1,6 @@
 
 PARAM_DICT = {
-        'StringZ:aLund' : [0, 2.0],
+        'StringZ:aLund' : [0.0, 2.0],
         'StringZ:bLund': [0.2, 2.0],
         # 'StringZ:rFactC':[0.0, 2.0],
         # 'StringZ:rFactB': [0., 2.0],
@@ -9,8 +9,8 @@ PARAM_DICT = {
         # 'StringPT:sigma':[0.,1.],
         # 'StringPT:enhancedFraction':[0.,1.],
         # 'StringPT:enhancedWidth':[1.0,10.0],
-        'StringFlav:ProbStoUD':[0,1.0],
-        'StringFlav:probQQtoQ':[0,1.0],
+        'StringFlav:ProbStoUD':[0.0,1.0],
+        'StringFlav:probQQtoQ':[0.0,1.0],
         # 'StringFlav:probSQtoQQ':[0,1.0],
         # 'StringFlav:ProbQQ1toQQ0':[0,1.0],
         'TimeShower:alphaSvalue':[0.06,0.25],
@@ -40,8 +40,8 @@ num_params = len(param_names)
 POINT2 = {key:0.5*value for key, value in MONASH_DICT.items()}
 POINT3 = {key:1.5*value for key, value in MONASH_DICT.items()}
 
-# NUM_PYTHIA_EVENTS=250000
-NUM_PYTHIA_EVENTS=1000
+NUM_PYTHIA_EVENTS=250000
+# NUM_PYTHIA_EVENTS=1000
 #250000, 1000
 KERNEL = 'Matern'
 NUM_TRAIN_POINTS=25

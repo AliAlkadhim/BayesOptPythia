@@ -18,6 +18,17 @@ font = {
 mp.rc('font', **font)
 mp.rc('text', usetex=True)
 
+
+X_LABEL_DICT = {
+    "aLund" : '$x_1$', 
+    "bLund" : '$x_2$',
+    "ProbStoUD":'$x_3$',
+    "probQQtoQ":'$x_4$',
+    "alphaSvalue": '$x_5$',
+    "pTmin": '$x_6$'
+}
+
+
 def compare_uniform_sobol(PARAM_DICT,size):
     fig, ax = plt.subplots(1,2,figsize=(10,5))
     uniform_candidates = make_x_candidates(PARAM_DICT,size).detach().numpy()
@@ -42,7 +53,7 @@ def compare_uniform_sobol(PARAM_DICT,size):
 
 
 
-def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=False):
+def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=False, toy=True):
     train_x = model.train_inputs[0].numpy()
     param_prefix = get_param_prefix(param)
     full_param_name = param_prefix + ':' + param
@@ -62,6 +73,7 @@ def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=
                                 train_x.max(axis=0)[param_index],
                                 2000).unsqueeze(1)
         # Create a grid where only the parameter of interest varies
+        mean_values = torch.from_numpy(mean_values)
         other_params = mean_values.clone()
         other_params = torch.tensor(other_params).repeat(2000, 1)
         other_params[:, param_index] = x_star.squeeze()
@@ -70,7 +82,9 @@ def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=
     model.eval()
     model.likelihood.eval()
     with torch.no_grad():
-        predictive_distribution = model.predict(x_star)
+        f_preds = model(x_star)  
+        # predictive_distribution = model.predict(x_star)
+        predictive_distribution = model.likelihood(f_preds)
         lower, upper = predictive_distribution.confidence_region()
         pred = predictive_distribution.mean.numpy()
 
@@ -89,9 +103,12 @@ def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=
     # y_upper = upper.detach().numpy().max() * 1.5
     # y_lower = 0#lower.detach().numpy().max()
     # ax.set_ylim(y_lower, y_upper)
-    ax.legend()
-    ax.set_xlabel(param)
-    ax.set_ylabel(r'$\lambda$')
+    ax.legend(fontsize=24)
+    if toy:
+        ax.set_xlabel(X_LABEL_DICT[param], fontsize=27)
+    else:
+        ax.set_xlabel(param, fontsize=27)
+    ax.set_ylabel(r'$f_{1min}$', fontsize=27)
     if set_xy_lim:
       ax.set_xlim(PARAM_DICT[full_param_name])
       if len(PARAM_DICT) <= 2:

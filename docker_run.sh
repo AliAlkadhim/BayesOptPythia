@@ -5,4 +5,4 @@
 #docker run -v $PWD:$PWD -w $PWD -p 8889:8889 -it hepstore/rivet-pythia
 #docker run -v $PWD:$PWD -v /media/ali/DATA/TEMP:/media/ali/DATA/TEMP -w $PWD -p 8889:8889 -it alialkadhim/pythia_sbi_tune:latest
 
-docker run -v $PWD:$PWD -w $PWD -p 8890:8890 -it alialkadhim/pythia_sbi_tune:latest
+docker run -v $PWD:$PWD -w $PWD -p 8891:8891 -it alialkadhim/pythia_sbi_tune:latest
