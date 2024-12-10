@@ -94,8 +94,8 @@ OPTIMIZE_ACQ_METHOD = 'Adam_restarts_clip_bounds'
 KAPPA=-1E-5
 
 def main():
-    object_func = toy_objective_func_one_min
-    # object_func = toy_objective_func_three_min
+    # object_func = toy_objective_func_one_min
+    object_func = toy_objective_func_three_min
 
     param_names = list(PARAM_DICT.keys())
     num_params =len(PARAM_DICT)

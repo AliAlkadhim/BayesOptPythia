@@ -106,9 +106,11 @@ def plot_model_param(model,param, ax, filter_observed_data = False,  set_xy_lim=
     ax.legend(fontsize=24)
     if toy:
         ax.set_xlabel(X_LABEL_DICT[param], fontsize=27)
+        ax.set_ylabel(r'$f_{1min}$', fontsize=27)
     else:
         ax.set_xlabel(param, fontsize=27)
-    ax.set_ylabel(r'$f_{1min}$', fontsize=27)
+        ax.set_ylabel(r'$f_{pythia}$', fontsize=27)
+    
     if set_xy_lim:
       ax.set_xlim(PARAM_DICT[full_param_name])
       if len(PARAM_DICT) <= 2:

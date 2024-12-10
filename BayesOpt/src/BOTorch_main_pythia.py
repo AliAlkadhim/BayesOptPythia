@@ -79,8 +79,8 @@ MONASH_DICT = {
 
 N_TRAIN_POINTS = 25
 
-# n_bo_iterations_l = [20, 40, 60, 80]
-n_bo_iterations_l = [40]
+# n_bo_iterations_l = [60, 80, 90]
+n_bo_iterations_l = [120]
 class SimpleCustomGP(ExactGP, GPyTorchModel):
 
     _num_outputs = 1  # to inform GPyTorchModel API

@@ -53,7 +53,7 @@ def main():
         print(train_df_new.head())
 
     else:
-        train_df_new_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'pythia_objective_func_N_PYTHIA_EVENTS_250000_N_TRAIN_POINTS_{NUM_TRAIN_POINTS}_gp_train_data.csv')
+        train_df_new_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'pythia_objective_func_N_PYTHIA_EVENTS_250000_N_TRAIN_POINTS_{NUM_TRAIN_POINTS}_gp_train_data_all_hists.csv')
         train_df_new = pd.read_csv(train_df_new_path)
         print(train_df_new.head())
 

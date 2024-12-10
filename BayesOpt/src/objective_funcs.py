@@ -250,7 +250,7 @@ def pythia_objective_func(aLund,
     filtered_data_keys, filtered_mc_keys = filter_keys(dfdata, dfsims, data_keys, mc_keys)
 
     #step 4.5: take out bad histograms
-    REDUCE_KEYS = True
+    REDUCE_KEYS = False
     print(f'REDUCE_KEYS = {REDUCE_KEYS}')
     if REDUCE_KEYS:
         reduced_data_keys, reduced_mc_keys = reduce_filtered_keys(filtered_data_keys, filtered_mc_keys)

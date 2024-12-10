@@ -328,31 +328,14 @@ def run_qEI_valid_card(best_params_df):
 
 if __name__ == "__main__":
     #################### RUN MONASH AND VALIDATION
-    # run_monash_card(MONASH_DICT)
+    
 
 
-    # configs_dict = {
-    # 'N_BO_ITERATIONS': 140,
-    # 'N_TRAIN_POINTS': 25,
-    # 'N_PARAMS': 6,
-    # 'N_OPTIMIZE_ACQ_ITER': 50,
-    # 'N_RESTARTS': 25,
-    # 'KERNEL': 'Matern',
-    # 'OPTIMIZE_ACQ_METHOD':  'Adam_restarts_clip_bounds',
-    # 'NUM_PYTHIA_EVENTS': 250000,
-    # }
-    # _, config_string = configs_df(configs_dict)
-    # print(config_string)
-    # dir_name = directory_name(object_func, configs_dict)
-    # # print(f'dir_name={dir_name}')
-    # path_name = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output', dir_name)
-    # best_params_df = load_best_params_df(path_name)
-    # print(best_params_df.head())
-    # # print(best_params_df["aLund"])
-    # run_EI_valid_card(best_params_df)
+
 
 
     #################### ANALYSE MONASH AND VALIDATION
+    # run_monash_card(MONASH_DICT)
 
     dfdata, dfsims_monash, generated_indices = get_monash_data()
     data_keys, mc_keys = get_hist_names(dfdata)
@@ -362,33 +345,52 @@ if __name__ == "__main__":
     hists_monash = make_hists(dfdata, dfsims_monash[0], reduced_data_keys, reduced_mc_keys)
 
 
+    ############ EI VALIDATION
+    configs_dict = {
+    'N_BO_ITERATIONS': 80,
+    'N_TRAIN_POINTS': 25,
+    'N_PARAMS': 6,
+    'N_OPTIMIZE_ACQ_ITER': 50,
+    'N_RESTARTS': 25,
+    'KERNEL': 'Matern',
+    'OPTIMIZE_ACQ_METHOD':  'Adam_restarts_clip_bounds',
+    'NUM_PYTHIA_EVENTS': 250000,
+    }
+    _, config_string = configs_df(configs_dict)
+    print(config_string)
+    dir_name = directory_name(object_func, configs_dict)
+    # print(f'dir_name={dir_name}')
+    path_name = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output', dir_name)
+    best_params_df = load_best_params_df(path_name)
+    print(best_params_df.head())
+    # print(best_params_df["aLund"])
+    run_EI_valid_card(best_params_df)
 
-    # dfdata, dfsims_EI_valid, generated_indices = get_EI_valid_data()
-    # hists_EI_valid = make_hists(dfdata, dfsims_EI_valid[0], reduced_data_keys, reduced_mc_keys)
+    dfdata, dfsims_EI_valid, generated_indices = get_EI_valid_data()
+    hists_EI_valid = make_hists(dfdata, dfsims_EI_valid[0], reduced_data_keys, reduced_mc_keys)
 
-    # EI_valid_plot_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output','post_processing', 'ALEPH_1996_S3486095_EI_valid_plot.pdf')
+    EI_valid_plot_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output','post_processing', f"ALEPH_1996_S3486095_EI_valid_plot_N_TRAIN_POINTS_{configs_dict['N_TRAIN_POINTS']}_N_BO_ITERATIONS_{configs_dict['N_BO_ITERATIONS']}_reduced_objective_func_all_hists.pdf")
 
-    # # plot_dist(reduced_data_keys, hists_monash, filename=EI_valid_plot_path)
-    # plot_dist_with_monash(hist_names=reduced_data_keys, monash_hists=hists_monash, valid_hists=hists_EI_valid, filename=EI_valid_plot_path)
+    plot_dist_with_monash(hist_names=reduced_data_keys, monash_hists=hists_monash, valid_hists=hists_EI_valid, filename=EI_valid_plot_path)
 
 
     ################### ANALYSE BOTORCH
     # N_TRAIN_POINTS = 25
     # n_bo_iterations = 90
 
-    N_TRAIN_POINTS = 15
-    n_bo_iterations = 40
+    # N_TRAIN_POINTS = 25
+    # n_bo_iterations = 120
 
-    BO_dir_string = f'BOTorch_pythia_N_TRAIN_POINTS_{N_TRAIN_POINTS}_N_BO_ITERATIONS_{n_bo_iterations}_N_PYTHIA_EVENTS_{NUM_PYTHIA_EVENTS}'
-    BO_dir = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output', BO_dir_string)
-    best_params_df = load_best_params_df(BO_dir, BOTorch=True)
-    print(best_params_df.head())
-    run_qEI_valid_card(best_params_df)
+    # BO_dir_string = f'BOTorch_pythia_N_TRAIN_POINTS_{N_TRAIN_POINTS}_N_BO_ITERATIONS_{n_bo_iterations}_N_PYTHIA_EVENTS_{NUM_PYTHIA_EVENTS}'
+    # BO_dir = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output', BO_dir_string)
+    # best_params_df = load_best_params_df(BO_dir, BOTorch=True)
+    # print(best_params_df.head())
+    # run_qEI_valid_card(best_params_df)
 
-    dfdata, dfsims_qEI_valid, generated_indices = get_qEI_valid_data()
-    hists_qEI_valid = make_hists(dfdata, dfsims_qEI_valid[0], reduced_data_keys, reduced_mc_keys)
+    # dfdata, dfsims_qEI_valid, generated_indices = get_qEI_valid_data()
+    # hists_qEI_valid = make_hists(dfdata, dfsims_qEI_valid[0], reduced_data_keys, reduced_mc_keys)
 
-    qEI_valid_plot_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output','post_processing', 'ALEPH_1996_S3486095_qEI_valid_plot.pdf')
+    # qEI_valid_plot_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'output','post_processing', f'ALEPH_1996_S3486095_qEI_valid_plot_N_TRAIN_POINTS_{N_TRAIN_POINTS}_N_BO_ITERATIONS_{n_bo_iterations}_reduced_objective_func_all_hists.pdf')
 
-    plot_dist_with_monash(hist_names=reduced_data_keys, monash_hists=hists_monash, valid_hists=hists_qEI_valid, filename=qEI_valid_plot_path, BOTorch=True)
+    # plot_dist_with_monash(hist_names=reduced_data_keys, monash_hists=hists_monash, valid_hists=hists_qEI_valid, filename=qEI_valid_plot_path, BOTorch=True)
 

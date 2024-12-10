@@ -107,7 +107,7 @@ def make_train_dataset(PARAM_DICT, points,true_objective_func, save_data=True):
     df = pd.DataFrame(rows, columns=column_names)
     if save_data:
         true_objective_func_name=true_objective_func.__name__
-        gp_train_df_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func_name}_N_PYTHIA_EVENTS_{NUM_PYTHIA_EVENTS}_N_TRAIN_POINTS_{NUM_TRAIN_POINTS}_gp_train_data.csv')
+        gp_train_df_path = os.path.join(BAYESOPT_BASE, 'BayesOpt', 'data', f'{true_objective_func_name}_N_PYTHIA_EVENTS_{NUM_PYTHIA_EVENTS}_N_TRAIN_POINTS_{NUM_TRAIN_POINTS}_gp_train_data_all_hists.csv')
         df.to_csv(gp_train_df_path)
         print(f'saved gp train data to {gp_train_df_path}')
     return df
@@ -147,7 +147,7 @@ def configs_df(params='CONFIG'):
         configs_dict = {
             'N_BO_ITERATIONS': params['N_BO_ITERATIONS'],
             'N_TRAIN_POINTS': params['N_TRAIN_POINTS'],
-            'N_PARAMS': num_params,
+            'N_PARAMS': params['N_PARAMS'],
             'N_OPTIMIZE_ACQ_ITER': params['N_OPTIMIZE_ACQ_ITER'],
             'N_RESTARTS': params['N_RESTARTS'],
             'KERNEL': KERNEL,

@@ -15,15 +15,15 @@ WeakSingleBoson:ffbar2gmZ = on
 PDF:lepton = off
 SpaceShower:QEDshowerByL = off
 
-StringZ:aLund = 1.207250832425432
+StringZ:aLund = 0.8333132251869932
 
-StringZ:bLund = 1.727631998589931
+StringZ:bLund = 1.4816295047618038
 
-StringFlav:ProbStoUD = 0.9802671852727636
+StringFlav:ProbStoUD = 0.7141016779327193
 
 StringFlav:probQQtoQ = 0.0
 
-TimeShower:alphaSvalue = 0.1358914980023327
+TimeShower:alphaSvalue = 0.1348498955100311
 
-TimeShower:pTmin = 0.5652905597505505
+TimeShower:pTmin = 0.1
 
