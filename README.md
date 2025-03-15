@@ -4,7 +4,7 @@
 ## Setup and Installation Procedure
 
 
-1. **Insure that you have docker installed successfully on your system, and check that you are comfortable in downloading and running a docker image.**
+1. **Ensure that you have docker installed successfully on your system, and check that you are comfortable in downloading and running a docker image.**
 > If you need more help on this, feel free to check out the docker tutorials that I wrote here.
 
 ----
