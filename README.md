@@ -1,11 +1,42 @@
 # BayesOptPythia
 
+This is the code repository for our paper in preparation (available upon request)
 
+*Practical Bayesian Optimization and Application
+to Pythia8 Tune*
+
+by Ali Al Kadhim (aa18dg@fsu.edu) & Harrison B. Prosper.
+
+- REPO LINK: https://github.com/AliAlkadhim/BayesOptPythia
+- OVERLEAF WRITEUP: https://www.overleaf.com/8112736245vnpgnshvtppc#deee58
 ## Setup and Installation Procedure
 
 
 1. **Ensure that you have docker installed successfully on your system, and check that you are comfortable in downloading and running a docker image.**
-> If you need more help on this, feel free to check out the docker tutorials that I wrote here.
+> If you need more help on this, feel free to check out the docker tutorials that I wrote here. 
+> To install, you can see [this link](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-debian-10). Just follow **Step #1**.
+
+To **see the status of the daemon** you can either do 
+```bash
+sudo service docker status
+```
+
+If you get an error message like "service command supports only basic LSB actions..." you have a `systemd` based startup system. Do
+
+```bash
+sudo systemctl status docker
+```
+
+or best for debian apparently is `sudo systemctl start docker.service` or `sudo /etc/init.d/docker start`
+
+**start the daemon**
+```bash
+sudo service docker start
+```
+or
+```bash
+sudo systemctl start docker
+```
 
 ----
 
