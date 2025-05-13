@@ -2,15 +2,11 @@
 
 This is the code repository for our paper in preparation (available upon request)
 
-*Practical Bayesian Optimization and Application
-to Pythia8 Tune*
+*Bayesian Optimization of Pythia8 Tunes*
 
-by Ali Al Kadhim (aa18dg@fsu.edu) & Harrison B. Prosper.
+by Ali Al Kadhim (aa18dg@fsu.edu), Harrison B. Prosper and Stephen Mrenna.
 
-- REPO LINK: https://github.com/AliAlkadhim/BayesOptPythia
-- OVERLEAF WRITEUP: https://www.overleaf.com/8112736245vnpgnshvtppc#deee58
-## Setup and Installation Procedure
-
+- Pleased be noted the existence of the supplementary material of this paper in this repository as "Supplementary_material_BayesOpt_Pythia.pdf".
 
 1. **Ensure that you have docker installed successfully on your system, and check that you are comfortable in downloading and running a docker image.**
 > If you need more help on this, feel free to check out the docker tutorials that I wrote here. 
