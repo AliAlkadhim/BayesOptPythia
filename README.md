@@ -1,8 +1,6 @@
 # BayesOptPythia
 
-This is the code repository for our paper in preparation (available upon request)
-
-*Bayesian Optimization of Pythia8 Tunes*
+This is the code repository for the paper *Bayesian Optimization of Pythia8 Tunes* which can be accessed on https://arxiv.org/abs/2505.11675
 
 by Ali Al Kadhim (aa18dg@fsu.edu), Harrison B. Prosper and Stephen Mrenna.
 
